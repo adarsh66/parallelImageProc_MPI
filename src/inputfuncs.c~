@@ -1,0 +1,73 @@
+
+/* Sets the input parameters according to values passed in the command line args
+ * User can choose not to pass all the input params as command line args,
+ * in which case, it will use the default values
+ * So we first set the pointers to the default input param values, 
+ * after which we override it with the given values 
+ * Will exit in case of unexpected input.
+ */ 
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+#include "log.h"
+
+void print_input_help();
+
+void set_input_params(int argc, char **argv, int *num_iters, int *print_freq, char *filename, double *stop_delta)
+{
+	int i=1;
+	char ch;
+	while (i < argc) {
+		ch = (int)argv[i][0];
+		//printf("C=%c\n",ch);
+		/*switch(ch){
+			case 'n': *num_iters = atoi(argv[i+1]); break;
+			case 'p': *print_freq = atoi(argv[i+1]); break;
+			case 'f': strcpy(filename, argv[i+1]); break;
+			case 's': *stop_delta = atof(argv[i+1]); break;
+			default : printf("Illegal command line args. Please check.\n");
+				  print_input_help();
+				  exit(-1);
+			}
+		*/
+		if (strcmp(argv[i], "-n")==0){
+			*num_iters = atoi(argv[i+1]); 
+		} else if (strcmp(argv[i], "-p")==0){
+			*print_freq = atoi(argv[i+1]);
+		} else if (strcmp(argv[i], "-f")==0){
+			strcpy(filename, argv[i+1]); 
+		} else if (strcmp(argv[i], "-s")==0){
+			*stop_delta = atof(argv[i+1]);
+		} else if (strcmp(argv[i], "--help")==0){
+			print_input_help();
+			exit(-1);
+		} else {
+			printf("Illegal command line args. Please check.\n");
+				  print_input_help();
+				  exit(-1);
+		}	
+		i += 2;
+	}
+}
+
+/* Prints out the command line input param details to std out as a guide */
+void print_input_help()
+{
+	printf("Please input parameters using the following format:\n");
+	printf("mpiexec -np 4 ./imagerecreation.c -n %d -p %d -f %s -s %f\n",
+			1500, 200, "edge_files/edgenew192x128.pgm", 0.1);
+	printf("-n[space]{value} - sets number of iterations to run\n");
+	printf("-p[space]{value} - sets print frequency\n");
+	printf("-f[space]{value} - sets file name to process\n");
+	printf("-s[space]{value} - sets stop criteria\n");
+}
+
+/* Prints out details of the input parametes */
+void print_input_params(int rank, int num_iters, int print_freq, char *filename, double stop_delta)
+{
+	log_it(rank, "Input parameters to begin the run: \n");
+	log_it(rank, "Input Filename = %s, Num Iterations = %d, Stats print frequency = %d, Stop Delta = %f\n",
+			filename, num_iters, print_freq, stop_delta);
+}
